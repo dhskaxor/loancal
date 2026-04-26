@@ -731,7 +731,7 @@ export default function App() {
                     clientId={ads.client!}
                     slotId={ads.mid!}
                     label="mid"
-                    format="rectangle"
+                    format="horizontal"
                     className="ad-slot--mid"
                   />
                 ) : (
@@ -794,8 +794,6 @@ export default function App() {
             </>
           )}
         </div>
-
-        <div className="bottom-spacer" />
       </div>
       </main>
 
