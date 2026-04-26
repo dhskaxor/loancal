@@ -226,7 +226,7 @@ export default function App() {
   const c = computation;
 
   return (
-    <>
+    <div className="app-shell">
       {ads.enabled && <AdSenseLoader clientId={ads.client!} />}
 
       <div className="ad-top">
@@ -358,11 +358,11 @@ export default function App() {
                 onChange={(e) => setAmount(Number(e.target.value))}
                 aria-label="대출 금액 슬라이더"
               />
-              <div className="range-labels">
-                <span>100만원</span>
-                <span>5억원</span>
-              </div>
             </RangeWithNudges>
+            <div className="range-labels range-labels--below">
+              <span>100만원</span>
+              <span>5억원</span>
+            </div>
           </div>
 
           <div className="input-group">
@@ -414,11 +414,11 @@ export default function App() {
                 onChange={(e) => setRate(Number(e.target.value))}
                 aria-label="연 이자율 슬라이더"
               />
-              <div className="range-labels">
-                <span>1%</span>
-                <span>20%</span>
-              </div>
             </RangeWithNudges>
+            <div className="range-labels range-labels--below">
+              <span>1%</span>
+              <span>20%</span>
+            </div>
           </div>
 
           <div className="input-group">
@@ -470,11 +470,11 @@ export default function App() {
                 onChange={(e) => setTerm(Number(e.target.value))}
                 aria-label="대출 기간 슬라이더"
               />
-              <div className="range-labels">
-                <span>6개월</span>
-                <span>30년</span>
-              </div>
             </RangeWithNudges>
+            <div className="range-labels range-labels--below">
+              <span>6개월</span>
+              <span>30년</span>
+            </div>
           </div>
         </div>
 
@@ -797,7 +797,7 @@ export default function App() {
       </div>
       </main>
 
-      <div className="ad-bottom">
+      <footer className="ad-bottom" role="contentinfo" aria-label="스폰서 광고">
         {ads.enabled ? (
           <AdSenseSlot
             clientId={ads.client!}
@@ -808,7 +808,7 @@ export default function App() {
         ) : (
           <div className="ad-banner-placeholder">광고</div>
         )}
-      </div>
-    </>
+      </footer>
+    </div>
   );
 }
