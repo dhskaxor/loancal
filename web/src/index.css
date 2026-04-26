@@ -119,10 +119,6 @@ body {
   text-align: center;
 }
 
-.ad-slot--top {
-  flex-shrink: 0;
-}
-
 .ad-slot--mid {
   max-width: 100%;
   margin: 10px 0 12px;

@@ -28,23 +28,21 @@ function useAdsenseConfig() {
     const client = normalizePublisherId(
       import.meta.env.VITE_ADSENSE_CLIENT ?? ""
     );
-    const top = import.meta.env.VITE_ADSENSE_SLOT_TOP?.trim() ?? "";
     const mid = import.meta.env.VITE_ADSENSE_SLOT_MID?.trim() ?? "";
     const bottom = import.meta.env.VITE_ADSENSE_SLOT_BOTTOM?.trim() ?? "";
 
     const slotInvalid =
-      isLikelyPublisherIdInsteadOfSlot(top) ||
       isLikelyPublisherIdInsteadOfSlot(mid) ||
       isLikelyPublisherIdInsteadOfSlot(bottom);
 
     if (
       import.meta.env.DEV &&
       client &&
-      (top || mid || bottom) &&
+      (mid || bottom) &&
       slotInvalid
     ) {
       console.warn(
-        "[AdSense] VITE_ADSENSE_SLOT_* 값이 잘못된 것 같습니다. " +
+        "[AdSense] VITE_ADSENSE_SLOT_MID / BOTTOM 값이 잘못된 것 같습니다. " +
           "`ca-pub-...`(발행자 ID)가 아니라, AdSense 콘솔 → 광고 단위에 표시되는 숫자 슬롯 ID를 넣어야 합니다."
       );
     }
@@ -52,12 +50,11 @@ function useAdsenseConfig() {
     const enabled =
       !isReactNativeWebView() &&
       !!client &&
-      !!top &&
       !!mid &&
       !!bottom &&
       !slotInvalid;
 
-    return { enabled, client, top, mid, bottom };
+    return { enabled, client, mid, bottom };
   }, []);
 }
 
@@ -228,15 +225,6 @@ export default function App() {
   return (
     <div className="app-shell">
       {ads.enabled && <AdSenseLoader clientId={ads.client!} />}
-
-      {ads.enabled && (
-        <AdSenseSlot
-          clientId={ads.client!}
-          slotId={ads.top!}
-          label="top"
-          className="ad-slot--top"
-        />
-      )}
 
       <header className="header">
         <h1>💰 대출 계산기</h1>
