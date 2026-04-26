@@ -1,7 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
-import { defineConfig, type HtmlTagDescriptor, type Plugin } from "vite";
+import { fileURLToPath } from "node:url";
+import {
+  defineConfig,
+  loadEnv,
+  type HtmlTagDescriptor,
+  type Plugin,
+} from "vite";
 import react from "@vitejs/plugin-react";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/** 배포 기본 도메인 (프로덕션 빌드 시 .env 미설정이어도 SEO에 반영) */
+const DEFAULT_PRODUCTION_SITE = "https://loancal-sigma.vercel.app";
 
 const SITE_DESC =
   "원리금균등·원금균등·만기일시 상환 방식별 월 상환금, 총 이자, 상환 스케줄을 무료로 계산하고 저장·비교할 수 있는 대출 계산기입니다.";
@@ -9,11 +20,18 @@ const SITE_DESC =
 const SEO_TITLE =
   "대출 계산기 | 원리금균등·원금균등·만기일시 월 상환액·이자 계산";
 
-function seoDistPlugin(): Plugin {
+function resolveSiteUrl(mode: string, envDir: string): string {
+  const env = loadEnv(mode, envDir, "");
+  const fromEnv = (env.VITE_SITE_URL || "").trim().replace(/\/+$/, "");
+  if (fromEnv) return fromEnv;
+  if (mode === "production") return DEFAULT_PRODUCTION_SITE;
+  return "";
+}
+
+function seoDistPlugin(site: string): Plugin {
   return {
     name: "loancal-seo-dist",
     closeBundle() {
-      const site = (process.env.VITE_SITE_URL || "").trim().replace(/\/+$/, "");
       const dist = path.resolve(__dirname, "dist");
       if (!fs.existsSync(dist)) return;
 
@@ -47,7 +65,7 @@ function seoDistPlugin(): Plugin {
   };
 }
 
-function htmlSeoInject(): Plugin {
+function htmlSeoInject(site: string): Plugin {
   /** charset·title 뒤에 붙여 검색엔진이 핵심 메타를 먼저 읽도록 함 */
   const injectTo = "head" as const;
 
@@ -56,8 +74,6 @@ function htmlSeoInject(): Plugin {
     transformIndexHtml: {
       order: "post",
       handler() {
-        const site = (process.env.VITE_SITE_URL || "").trim().replace(/\/+$/, "");
-
         const graph: Record<string, unknown>[] = [
           {
             "@type": "WebSite",
@@ -232,10 +248,14 @@ function htmlSeoInject(): Plugin {
   };
 }
 
-export default defineConfig({
-  plugins: [react(), htmlSeoInject(), seoDistPlugin()],
-  server: {
-    host: true,
-    port: 5173,
-  },
+export default defineConfig(({ mode }) => {
+  const site = resolveSiteUrl(mode, __dirname);
+
+  return {
+    plugins: [react(), htmlSeoInject(site), seoDistPlugin(site)],
+    server: {
+      host: true,
+      port: 5173,
+    },
+  };
 });
