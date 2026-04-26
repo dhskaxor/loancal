@@ -17,6 +17,7 @@ import {
   isLikelyPublisherIdInsteadOfSlot,
   normalizePublisherId,
 } from "./adsenseEnv";
+import { RangeWithNudges } from "./RangeWithNudges";
 
 function isReactNativeWebView(): boolean {
   return typeof window !== "undefined" && !!window.ReactNativeWebView;
@@ -86,6 +87,36 @@ const METHODS: RepaymentMethod[] = [
   "equal_principal",
   "bullet",
 ];
+
+const AMOUNT_MIN = 100;
+const AMOUNT_MAX = 50000;
+const AMOUNT_STEP = 100;
+
+function clampAmount(v: number): number {
+  const rounded = Math.round(v / AMOUNT_STEP) * AMOUNT_STEP;
+  return Math.min(AMOUNT_MAX, Math.max(AMOUNT_MIN, rounded));
+}
+
+const RATE_MIN = 1;
+const RATE_MAX = 20;
+
+function clampRate(v: number): number {
+  const r = Math.round(v * 10) / 10;
+  return Math.min(RATE_MAX, Math.max(RATE_MIN, r));
+}
+
+const TERM_MIN = 6;
+const TERM_MAX = 360;
+const TERM_STEP = 6;
+
+function clampTermMonths(v: number): number {
+  const c = Math.max(TERM_MIN, Math.min(TERM_MAX, v));
+  const steps = Math.round((c - TERM_MIN) / TERM_STEP);
+  return Math.min(
+    TERM_MAX,
+    Math.max(TERM_MIN, steps * TERM_STEP + TERM_MIN)
+  );
+}
 
 export default function App() {
   const ads = useAdsenseConfig();
@@ -283,18 +314,55 @@ export default function App() {
               <span>대출 금액</span>
               <span className="input-value">{amountLabel(amount)}</span>
             </div>
-            <input
-              type="range"
-              min={100}
-              max={50000}
-              step={100}
-              value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
-            />
-            <div className="range-labels">
-              <span>100만원</span>
-              <span>5억원</span>
-            </div>
+            <RangeWithNudges
+              groupLabel="대출 금액 조절"
+              left={[
+                {
+                  label: "−500",
+                  ariaLabel: "대출 금액 500만원 감소",
+                  disabled: amount <= AMOUNT_MIN,
+                  onClick: () =>
+                    setAmount((a) => clampAmount(a - 500)),
+                },
+                {
+                  label: "−100",
+                  ariaLabel: "대출 금액 100만원 감소",
+                  disabled: amount <= AMOUNT_MIN,
+                  onClick: () =>
+                    setAmount((a) => clampAmount(a - 100)),
+                },
+              ]}
+              right={[
+                {
+                  label: "+100",
+                  ariaLabel: "대출 금액 100만원 증가",
+                  disabled: amount >= AMOUNT_MAX,
+                  onClick: () =>
+                    setAmount((a) => clampAmount(a + 100)),
+                },
+                {
+                  label: "+500",
+                  ariaLabel: "대출 금액 500만원 증가",
+                  disabled: amount >= AMOUNT_MAX,
+                  onClick: () =>
+                    setAmount((a) => clampAmount(a + 500)),
+                },
+              ]}
+            >
+              <input
+                type="range"
+                min={AMOUNT_MIN}
+                max={AMOUNT_MAX}
+                step={AMOUNT_STEP}
+                value={amount}
+                onChange={(e) => setAmount(Number(e.target.value))}
+                aria-label="대출 금액 슬라이더"
+              />
+              <div className="range-labels">
+                <span>100만원</span>
+                <span>5억원</span>
+              </div>
+            </RangeWithNudges>
           </div>
 
           <div className="input-group">
@@ -302,18 +370,55 @@ export default function App() {
               <span>연 이자율</span>
               <span className="input-value">{rate.toFixed(1)}%</span>
             </div>
-            <input
-              type="range"
-              min={1}
-              max={20}
-              step={0.1}
-              value={rate}
-              onChange={(e) => setRate(Number(e.target.value))}
-            />
-            <div className="range-labels">
-              <span>1%</span>
-              <span>20%</span>
-            </div>
+            <RangeWithNudges
+              groupLabel="연 이자율 조절"
+              left={[
+                {
+                  label: "−0.5",
+                  ariaLabel: "연 이자율 0.5%p 감소",
+                  disabled: rate <= RATE_MIN,
+                  onClick: () =>
+                    setRate((r) => clampRate(r - 0.5)),
+                },
+                {
+                  label: "−0.1",
+                  ariaLabel: "연 이자율 0.1%p 감소",
+                  disabled: rate <= RATE_MIN,
+                  onClick: () =>
+                    setRate((r) => clampRate(r - 0.1)),
+                },
+              ]}
+              right={[
+                {
+                  label: "+0.1",
+                  ariaLabel: "연 이자율 0.1%p 증가",
+                  disabled: rate >= RATE_MAX,
+                  onClick: () =>
+                    setRate((r) => clampRate(r + 0.1)),
+                },
+                {
+                  label: "+0.5",
+                  ariaLabel: "연 이자율 0.5%p 증가",
+                  disabled: rate >= RATE_MAX,
+                  onClick: () =>
+                    setRate((r) => clampRate(r + 0.5)),
+                },
+              ]}
+            >
+              <input
+                type="range"
+                min={RATE_MIN}
+                max={RATE_MAX}
+                step={0.1}
+                value={rate}
+                onChange={(e) => setRate(Number(e.target.value))}
+                aria-label="연 이자율 슬라이더"
+              />
+              <div className="range-labels">
+                <span>1%</span>
+                <span>20%</span>
+              </div>
+            </RangeWithNudges>
           </div>
 
           <div className="input-group">
@@ -321,18 +426,55 @@ export default function App() {
               <span>대출 기간</span>
               <span className="input-value">{termLabel(term)}</span>
             </div>
-            <input
-              type="range"
-              min={6}
-              max={360}
-              step={6}
-              value={term}
-              onChange={(e) => setTerm(Number(e.target.value))}
-            />
-            <div className="range-labels">
-              <span>6개월</span>
-              <span>30년</span>
-            </div>
+            <RangeWithNudges
+              groupLabel="대출 기간 조절"
+              left={[
+                {
+                  label: "−1년",
+                  ariaLabel: "대출 기간 1년 감소",
+                  disabled: term <= TERM_MIN,
+                  onClick: () =>
+                    setTerm((t) => clampTermMonths(t - 12)),
+                },
+                {
+                  label: "−6개월",
+                  ariaLabel: "대출 기간 6개월 감소",
+                  disabled: term <= TERM_MIN,
+                  onClick: () =>
+                    setTerm((t) => clampTermMonths(t - 6)),
+                },
+              ]}
+              right={[
+                {
+                  label: "+6개월",
+                  ariaLabel: "대출 기간 6개월 증가",
+                  disabled: term >= TERM_MAX,
+                  onClick: () =>
+                    setTerm((t) => clampTermMonths(t + 6)),
+                },
+                {
+                  label: "+1년",
+                  ariaLabel: "대출 기간 1년 증가",
+                  disabled: term >= TERM_MAX,
+                  onClick: () =>
+                    setTerm((t) => clampTermMonths(t + 12)),
+                },
+              ]}
+            >
+              <input
+                type="range"
+                min={TERM_MIN}
+                max={TERM_MAX}
+                step={TERM_STEP}
+                value={term}
+                onChange={(e) => setTerm(Number(e.target.value))}
+                aria-label="대출 기간 슬라이더"
+              />
+              <div className="range-labels">
+                <span>6개월</span>
+                <span>30년</span>
+              </div>
+            </RangeWithNudges>
           </div>
         </div>
 
