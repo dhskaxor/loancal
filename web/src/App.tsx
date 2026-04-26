@@ -229,17 +229,15 @@ export default function App() {
     <div className="app-shell">
       {ads.enabled && <AdSenseLoader clientId={ads.client!} />}
 
-      <div className="ad-top">
-        {ads.enabled ? (
+      {ads.enabled && (
+        <div className="ad-strip ad-strip--top">
           <AdSenseSlot
             clientId={ads.client!}
             slotId={ads.top!}
             label="top"
           />
-        ) : (
-          <div className="ad-banner-placeholder">광고</div>
-        )}
-      </div>
+        </div>
+      )}
 
       <header className="header">
         <h1>💰 대출 계산기</h1>
@@ -723,10 +721,8 @@ export default function App() {
                 </div>
               </div>
 
-              <div
-                className={`ad-middle${ads.enabled ? " ad-middle--has-ads" : ""}`}
-              >
-                {ads.enabled ? (
+              {ads.enabled && (
+                <div className="ad-strip ad-strip--mid">
                   <AdSenseSlot
                     clientId={ads.client!}
                     slotId={ads.mid!}
@@ -734,10 +730,8 @@ export default function App() {
                     format="horizontal"
                     className="ad-slot--mid"
                   />
-                ) : (
-                  "광고"
-                )}
-              </div>
+                </div>
+              )}
 
               <div
                 className="tip-box"
@@ -797,18 +791,20 @@ export default function App() {
       </div>
       </main>
 
-      <footer className="ad-bottom" role="contentinfo" aria-label="스폰서 광고">
-        {ads.enabled ? (
+      {ads.enabled && (
+        <footer
+          className="ad-strip ad-strip--footer"
+          role="contentinfo"
+          aria-label="스폰서 광고"
+        >
           <AdSenseSlot
             clientId={ads.client!}
             slotId={ads.bottom!}
             label="bottom"
             className="ad-slot--bottom"
           />
-        ) : (
-          <div className="ad-banner-placeholder">광고</div>
-        )}
-      </footer>
+        </footer>
+      )}
     </div>
   );
 }
