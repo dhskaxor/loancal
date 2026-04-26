@@ -17,6 +17,10 @@ npm run dev
 
 기본: `http://localhost:5173` (또는 터미널에 표시된 URL).
 
+### 배포 URL(SEO)
+
+프로덕션 빌드 시 사이트 주소는 [`web/.env.production`](web/.env.production)의 **`https://loancal-sigma.vercel.app`** 가 사용됩니다(canonical, Open Graph, sitemap).
+
 ### AdSense (브라우저만)
 
 [`web/.env.example`](web/.env.example)을 복사해 `web/.env`로 두고 `VITE_ADSENSE_*` 값을 채웁니다. 값이 모두 있을 때만 상·중·하 슬롯과 스크립트가 로드됩니다.
@@ -26,7 +30,7 @@ npm run dev
 AdMob 네이티브 모듈은 **Expo Go가 아닌 개발 빌드**(prebuild 후 `expo run:android` / `expo run:ios` 또는 EAS Build)가 필요합니다.
 
 1. 웹을 먼저 띄운 뒤(`npm run dev`), 에뮬레이터 기본 주소는 코드에서 `http://10.0.2.2:5173`(Android) / `http://localhost:5173`(iOS)로 잡습니다.
-2. 실기기나 다른 PC IP를 쓰려면 [`mobile/.env.example`](mobile/.env.example)을 참고해 `EXPO_PUBLIC_WEB_URL`을 설정하세요.
+2. 배포 웹 주소는 **`https://loancal-sigma.vercel.app`** 로 맞춰 두었습니다. 로컬만 쓰려면 [`mobile/.env.example`](mobile/.env.example)처럼 `EXPO_PUBLIC_WEB_URL`을 비우거나 덮어쓰면 됩니다.
 
 ```bash
 cd mobile
@@ -39,7 +43,7 @@ npx expo run:android
 
 [`mobile/.env.example`](mobile/.env.example) 참고.
 
-- `EXPO_PUBLIC_WEB_URL`: 배포된 웹의 HTTPS URL 권장.
+- `EXPO_PUBLIC_WEB_URL`: 배포 웹 URL. 기본 프로덕션 값은 `https://loancal-sigma.vercel.app` ([`mobile/.env.production`](mobile/.env.production), [`mobile/src/adConfig.ts`](mobile/src/adConfig.ts)).
 - `EXPO_PUBLIC_ADMOB_USE_TEST_IDS=false`로 두면 아래 배너·전면 단위 ID가 사용됩니다(비어 있으면 여전히 Google 테스트 ID).
 - 상용 빌드 전 [`mobile/app.json`](mobile/app.json)의 `react-native-google-mobile-ads` 플러그인에 있는 **앱 ID**(`androidAppId`, `iosAppId`)를 AdMob 콘솔의 본인 앱 ID로 바꾸세요. 현재는 Google 샘플 앱 ID입니다.
 
