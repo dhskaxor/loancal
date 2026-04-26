@@ -1,16 +1,11 @@
 import { useEffect } from "react";
-
-const SCRIPT_ID = "loancal-adsense-script";
+import { ensureAdsenseScript } from "./adsenseScript";
 
 export function AdSenseLoader({ clientId }: { clientId: string }) {
   useEffect(() => {
-    if (document.getElementById(SCRIPT_ID)) return;
-    const s = document.createElement("script");
-    s.id = SCRIPT_ID;
-    s.async = true;
-    s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(clientId)}`;
-    s.crossOrigin = "anonymous";
-    document.head.appendChild(s);
+    void ensureAdsenseScript(clientId).catch(() => {
+      /* noop: 슬롯에서 동일 Promise 재시도 */
+    });
   }, [clientId]);
   return null;
 }

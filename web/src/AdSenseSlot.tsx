@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { ensureAdsenseScript } from "./adsenseScript";
 
 type Props = {
   slotId: string;
@@ -9,24 +10,49 @@ type Props = {
   className?: string;
 };
 
+function doubleRequestAnimationFrame(cb: () => void): void {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(cb);
+  });
+}
+
 /** 브라우저 전용. RN WebView에서는 부모가 렌더하지 않음. */
 export function AdSenseSlot({
   slotId,
   clientId,
-  format = "horizontal",
+  format = "auto",
   label,
   className = "",
 }: Props) {
   const pushed = useRef(false);
 
   useEffect(() => {
-    if (!slotId || !clientId || pushed.current) return;
-    pushed.current = true;
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch {
-      pushed.current = false;
-    }
+    if (!slotId || !clientId) return;
+
+    let cancelled = false;
+
+    const runPush = () => {
+      if (cancelled || pushed.current) return;
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        pushed.current = true;
+      } catch {
+        pushed.current = false;
+      }
+    };
+
+    void ensureAdsenseScript(clientId)
+      .then(() => {
+        if (cancelled) return;
+        doubleRequestAnimationFrame(runPush);
+      })
+      .catch(() => {
+        pushed.current = false;
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [slotId, clientId]);
 
   return (
