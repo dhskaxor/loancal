@@ -230,13 +230,12 @@ export default function App() {
       {ads.enabled && <AdSenseLoader clientId={ads.client!} />}
 
       {ads.enabled && (
-        <div className="ad-strip ad-strip--top">
-          <AdSenseSlot
-            clientId={ads.client!}
-            slotId={ads.top!}
-            label="top"
-          />
-        </div>
+        <AdSenseSlot
+          clientId={ads.client!}
+          slotId={ads.top!}
+          label="top"
+          className="ad-slot--top"
+        />
       )}
 
       <header className="header">
@@ -722,15 +721,13 @@ export default function App() {
               </div>
 
               {ads.enabled && (
-                <div className="ad-strip ad-strip--mid">
-                  <AdSenseSlot
-                    clientId={ads.client!}
-                    slotId={ads.mid!}
-                    label="mid"
-                    format="horizontal"
-                    className="ad-slot--mid"
-                  />
-                </div>
+                <AdSenseSlot
+                  clientId={ads.client!}
+                  slotId={ads.mid!}
+                  label="mid"
+                  format="horizontal"
+                  className="ad-slot--mid"
+                />
               )}
 
               <div
@@ -792,18 +789,12 @@ export default function App() {
       </main>
 
       {ads.enabled && (
-        <footer
-          className="ad-strip ad-strip--footer"
-          role="contentinfo"
-          aria-label="스폰서 광고"
-        >
-          <AdSenseSlot
-            clientId={ads.client!}
-            slotId={ads.bottom!}
-            label="bottom"
-            className="ad-slot--bottom"
-          />
-        </footer>
+        <AdSenseSlot
+          clientId={ads.client!}
+          slotId={ads.bottom!}
+          label="bottom"
+          className="ad-slot--bottom"
+        />
       )}
     </div>
   );

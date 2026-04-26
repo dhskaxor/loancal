@@ -88,38 +88,7 @@ body {
   scroll-margin-bottom: 1rem;
 }
 
-/* AdSense: 슬롯(ins)은 직접 넣어야 하며, 빈 ‘광고 영역’ 박스는 필수 아님 */
-.ad-strip {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ad-strip--top {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: max(12px, env(safe-area-inset-left, 0px));
-  padding-right: max(12px, env(safe-area-inset-right, 0px));
-}
-
-.ad-strip--mid {
-  margin: 10px 0 12px;
-  padding: 0 2px;
-}
-
-.ad-strip--footer {
-  flex-shrink: 0;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  padding-top: 8px;
-  padding-left: max(12px, env(safe-area-inset-left, 0px));
-  padding-right: max(12px, env(safe-area-inset-right, 0px));
-  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
-}
-
+/* AdSense 슬롯만 두고, 상·하단 ‘띠’ 배경/테두리는 두지 않음 */
 .ad-slot {
   width: 100%;
   max-width: 320px;
@@ -129,18 +98,40 @@ body {
   justify-content: center;
 }
 
+/* 실제 소재가 올 때까지 레이아웃·탭 순서에 영향 최소화 */
+.ad-slot--pending {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.ad-slot--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .ad-slot ins {
   display: block;
   min-width: 100%;
   text-align: center;
 }
 
+.ad-slot--top {
+  flex-shrink: 0;
+}
+
 .ad-slot--mid {
   max-width: 100%;
+  margin: 10px 0 12px;
 }
 
 .ad-slot--bottom {
+  flex-shrink: 0;
   max-width: 320px;
+  padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
 }
 
 .header {
