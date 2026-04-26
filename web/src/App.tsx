@@ -13,6 +13,10 @@ import {
   removeSavedScenario,
   type SavedScenario,
 } from "./savedScenarios";
+import {
+  isLikelyPublisherIdInsteadOfSlot,
+  normalizePublisherId,
+} from "./adsenseEnv";
 
 function isReactNativeWebView(): boolean {
   return typeof window !== "undefined" && !!window.ReactNativeWebView;
@@ -20,12 +24,38 @@ function isReactNativeWebView(): boolean {
 
 function useAdsenseConfig() {
   return useMemo(() => {
-    const client = import.meta.env.VITE_ADSENSE_CLIENT?.trim();
-    const top = import.meta.env.VITE_ADSENSE_SLOT_TOP?.trim();
-    const mid = import.meta.env.VITE_ADSENSE_SLOT_MID?.trim();
-    const bottom = import.meta.env.VITE_ADSENSE_SLOT_BOTTOM?.trim();
+    const client = normalizePublisherId(
+      import.meta.env.VITE_ADSENSE_CLIENT ?? ""
+    );
+    const top = import.meta.env.VITE_ADSENSE_SLOT_TOP?.trim() ?? "";
+    const mid = import.meta.env.VITE_ADSENSE_SLOT_MID?.trim() ?? "";
+    const bottom = import.meta.env.VITE_ADSENSE_SLOT_BOTTOM?.trim() ?? "";
+
+    const slotInvalid =
+      isLikelyPublisherIdInsteadOfSlot(top) ||
+      isLikelyPublisherIdInsteadOfSlot(mid) ||
+      isLikelyPublisherIdInsteadOfSlot(bottom);
+
+    if (
+      import.meta.env.DEV &&
+      client &&
+      (top || mid || bottom) &&
+      slotInvalid
+    ) {
+      console.warn(
+        "[AdSense] VITE_ADSENSE_SLOT_* 값이 잘못된 것 같습니다. " +
+          "`ca-pub-...`(발행자 ID)가 아니라, AdSense 콘솔 → 광고 단위에 표시되는 숫자 슬롯 ID를 넣어야 합니다."
+      );
+    }
+
     const enabled =
-      !isReactNativeWebView() && !!client && !!top && !!mid && !!bottom;
+      !isReactNativeWebView() &&
+      !!client &&
+      !!top &&
+      !!mid &&
+      !!bottom &&
+      !slotInvalid;
+
     return { enabled, client, top, mid, bottom };
   }, []);
 }
