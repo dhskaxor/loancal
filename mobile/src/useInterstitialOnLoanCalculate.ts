@@ -5,7 +5,8 @@ import { interstitialUnitId } from "./adConfig";
 const THRESHOLD = 4;
 
 /**
- * WebView `postMessage` 본문(JSON)을 받아 `loan_calculate`일 때마다 카운트하고,
+ * WebView `postMessage` 본문(JSON)을 받아 `loan_calculate`일 때마다 카운트합니다.
+ * (메인 계산기의「계산하기」와 비교 계산기의「비교 계산하기」가 동일 타입을 보냅니다.)
  * 4의 배수(4, 8, 12…)마다 전면 광고를 한 번 시도합니다. 로드/표시 중에는 중복 요청을 막습니다.
  */
 export function useInterstitialOnLoanCalculate() {

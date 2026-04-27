@@ -1,0 +1,18 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Loan calculator">
+  <defs>
+    <linearGradient id="loancal-bg" x1="12%" y1="0%" x2="88%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#loancal-bg)"/>
+  <rect x="14" y="12" width="36" height="40" rx="5" fill="#ffffff" fill-opacity="0.95"/>
+  <rect x="18" y="16" width="28" height="10" rx="2" fill="#e0e7ff"/>
+  <circle cx="22" cy="32" r="2.2" fill="#2563eb"/>
+  <circle cx="32" cy="32" r="2.2" fill="#2563eb"/>
+  <circle cx="42" cy="32" r="2.2" fill="#2563eb"/>
+  <circle cx="22" cy="40" r="2.2" fill="#2563eb"/>
+  <circle cx="32" cy="40" r="2.2" fill="#0d9488"/>
+  <circle cx="42" cy="40" r="2.2" fill="#2563eb"/>
+  <path d="M44 18c2.5 0 4.5 2 4.5 4.5S46.5 27 44 27" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

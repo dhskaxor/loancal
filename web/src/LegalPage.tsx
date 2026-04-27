@@ -117,13 +117,6 @@ export default function LegalPage({ kind }: { kind: LegalKind }) {
               );
             })}
           </section>
-          <nav className="site-legal-links">
-            <a href="/">대출 계산기</a>
-            <a href="/compare">대출 비교 계산기</a>
-            <a href="/privacy">개인정보처리방침</a>
-            <a href="/terms">이용약관</a>
-            <a href="/contact">문의하기</a>
-          </nav>
         </div>
       </main>
     </div>

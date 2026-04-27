@@ -120,7 +120,7 @@ export default function LoanComparePage() {
     setMeta("og:url", canonical, true);
   }, []);
 
-  const calculate = useCallback(() => {
+  const calculate = useCallback((notifyNative = false) => {
     const principalWon = loanAmountMan * 10000;
     const budgetWon = monthlyBudgetMan * 10000;
     if (
@@ -165,6 +165,12 @@ export default function LoanComparePage() {
       (x) => x.monthly <= budgetWon
     ).length;
     setResult({ rates, terms, cells, bestCell, okCount });
+
+    if (notifyNative && isReactNativeWebView()) {
+      window.ReactNativeWebView?.postMessage(
+        JSON.stringify({ type: "loan_calculate" })
+      );
+    }
   }, [
     loanAmountMan,
     monthlyBudgetMan,
@@ -301,7 +307,11 @@ export default function LoanComparePage() {
             </div>
           </section>
 
-          <button type="button" className="calc-btn" onClick={calculate}>
+          <button
+            type="button"
+            className="calc-btn"
+            onClick={() => calculate(true)}
+          >
             📊 비교 계산하기
           </button>
 
@@ -462,12 +472,6 @@ export default function LoanComparePage() {
               </div>
             </section>
           )}
-
-          <nav className="site-legal-links">
-            <a href="/privacy">개인정보처리방침</a>
-            <a href="/terms">이용약관</a>
-            <a href="/contact">문의하기</a>
-          </nav>
         </div>
       </main>
 

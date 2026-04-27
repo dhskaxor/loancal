@@ -217,7 +217,7 @@ export default function App() {
       {ads.enabled && <AdSenseLoader clientId={ads.client!} />}
 
       <header className="header">
-        <div className="page-badge">대출 비교 계산기</div>
+        <div className="page-badge">대출 계산기</div>
         <h1>💰 대출 계산기</h1>
         <p className="header-tagline">
           원리금균등 · 원금균등 · 만기일시 상환
@@ -784,11 +784,6 @@ export default function App() {
           )}
         </div>
 
-        <nav className="site-legal-links">
-          <a href="/privacy">개인정보처리방침</a>
-          <a href="/terms">이용약관</a>
-          <a href="/contact">문의하기</a>
-        </nav>
       </div>
       </main>
 

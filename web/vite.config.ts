@@ -56,6 +56,41 @@ function seoDistPlugin(site: string): Plugin {
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>${site}/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>${site}/guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>${site}/compare-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>${site}/repayment-compare</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>${site}/rate-term-effects</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>${site}/faq</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>${site}/disclaimer</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.45</priority>
+  </url>
+  <url>
     <loc>${site}/privacy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -182,7 +217,7 @@ function htmlSeoInject(site: string): Plugin {
           },
           {
             tag: "meta",
-            attrs: { name: "theme-color", content: "#0a0e1a" },
+            attrs: { name: "theme-color", content: "#2563eb" },
             injectTo,
           },
           {
@@ -250,6 +285,22 @@ function htmlSeoInject(site: string): Plugin {
             {
               tag: "meta",
               attrs: { property: "og:url", content: `${site}/` },
+              injectTo,
+            },
+            {
+              tag: "meta",
+              attrs: {
+                property: "og:image",
+                content: `${site}/apple-touch-icon.png`,
+              },
+              injectTo,
+            },
+            {
+              tag: "meta",
+              attrs: {
+                name: "twitter:image",
+                content: `${site}/apple-touch-icon.png`,
+              },
               injectTo,
             }
           );

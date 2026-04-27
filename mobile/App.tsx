@@ -1,20 +1,26 @@
 import { useEffect } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View, useWindowDimensions } from "react-native";
 import mobileAds, {
   BannerAd,
   BannerAdSize,
   MaxAdContentRating,
 } from "react-native-google-mobile-ads";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import type { WebViewMessageEvent } from "react-native-webview";
 import { WebView } from "react-native-webview";
 import { bannerUnitId, getWebUrl } from "./src/adConfig";
 import { useInterstitialOnLoanCalculate } from "./src/useInterstitialOnLoanCalculate";
 
-export default function App() {
+function AppContent() {
   const webUrl = getWebUrl();
   const onLoanMessage = useInterstitialOnLoanCalculate();
+  const { width: windowWidth } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const onMessage = (e: WebViewMessageEvent) =>
     onLoanMessage(e.nativeEvent.data);
@@ -47,22 +53,36 @@ export default function App() {
   }, []);
 
   return (
+    <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
+      <StatusBar style="dark" />
+      {Platform.OS === "android" ? (
+        <WebView {...webViewCommon} mixedContentMode="always" />
+      ) : (
+        <WebView {...webViewCommon} />
+      )}
+      <View
+        style={[
+          styles.bannerWrap,
+          {
+            width: windowWidth,
+            paddingBottom: Math.max(insets.bottom, 4),
+          },
+        ]}
+      >
+        <BannerAd
+          unitId={bannerUnitId("bottom")}
+          size={BannerAdSize.BANNER}
+          requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+        />
+      </View>
+    </SafeAreaView>
+  );
+}
+
+export default function App() {
+  return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
-        <StatusBar style="dark" />
-        {Platform.OS === "android" ? (
-          <WebView {...webViewCommon} mixedContentMode="always" />
-        ) : (
-          <WebView {...webViewCommon} />
-        )}
-        <View style={styles.bannerWrap}>
-          <BannerAd
-            unitId={bannerUnitId("bottom")}
-            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-          />
-        </View>
-      </SafeAreaView>
+      <AppContent />
     </SafeAreaProvider>
   );
 }
@@ -78,8 +98,11 @@ const styles = StyleSheet.create({
   },
   bannerWrap: {
     alignItems: "center",
+    alignSelf: "stretch",
+    flexGrow: 0,
+    flexShrink: 0,
     backgroundColor: "#e2e8f0",
-    minHeight: 54,
+    minHeight: 52,
     justifyContent: "center",
   },
 });

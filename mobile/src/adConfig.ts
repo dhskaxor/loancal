@@ -11,7 +11,8 @@ export type BannerSlot = "top" | "mid" | "bottom";
 
 export function bannerUnitId(slot: BannerSlot): string {
   if (useTestAdUnits()) {
-    return TestIds.ADAPTIVE_BANNER;
+    /* 하단 고정폭 배너는 표준 BANNER 테스트 단위와 짝을 맞추면 로드가 안정적입니다. */
+    return slot === "bottom" ? TestIds.BANNER : TestIds.ADAPTIVE_BANNER;
   }
   const v =
     slot === "top"
@@ -20,7 +21,8 @@ export function bannerUnitId(slot: BannerSlot): string {
         ? process.env.EXPO_PUBLIC_ADMOB_BANNER_MID
         : process.env.EXPO_PUBLIC_ADMOB_BANNER_BOTTOM;
   const id = v?.trim();
-  return id && id.length > 0 ? id : TestIds.ADAPTIVE_BANNER;
+  if (id && id.length > 0) return id;
+  return slot === "bottom" ? TestIds.BANNER : TestIds.ADAPTIVE_BANNER;
 }
 
 export function interstitialUnitId(): string {
