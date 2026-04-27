@@ -50,13 +50,6 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
         <StatusBar style="dark" />
-        <View style={styles.bannerWrap}>
-          <BannerAd
-            unitId={bannerUnitId("top")}
-            size={BannerAdSize.LARGE_ANCHORED_ADAPTIVE_BANNER}
-            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-          />
-        </View>
         {Platform.OS === "android" ? (
           <WebView {...webViewCommon} mixedContentMode="always" />
         ) : (
@@ -64,15 +57,8 @@ export default function App() {
         )}
         <View style={styles.bannerWrap}>
           <BannerAd
-            unitId={bannerUnitId("mid")}
-            size={BannerAdSize.INLINE_ADAPTIVE_BANNER}
-            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-          />
-        </View>
-        <View style={styles.bannerWrap}>
-          <BannerAd
             unitId={bannerUnitId("bottom")}
-            size={BannerAdSize.LARGE_ANCHORED_ADAPTIVE_BANNER}
+            size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
             requestOptions={{ requestNonPersonalizedAdsOnly: true }}
           />
         </View>
@@ -93,5 +79,7 @@ const styles = StyleSheet.create({
   bannerWrap: {
     alignItems: "center",
     backgroundColor: "#e2e8f0",
+    minHeight: 54,
+    justifyContent: "center",
   },
 });
