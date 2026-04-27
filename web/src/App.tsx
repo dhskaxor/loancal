@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AdSenseLoader } from "./AdSenseLoader";
 import { AdSenseSlot } from "./AdSenseSlot";
 import {
@@ -117,15 +117,12 @@ function clampTermMonths(v: number): number {
 
 export default function App() {
   const ads = useAdsenseConfig();
-  const resultRef = useRef<HTMLDivElement>(null);
 
   const [method, setMethod] = useState<RepaymentMethod>("equal_payment");
   const [amount, setAmount] = useState(3000);
   const [rate, setRate] = useState(4.5);
   const [term, setTerm] = useState(12);
-  const [computation, setComputation] = useState<LoanComputation>(() =>
-    computeLoan(3000, 4.5, 12, "equal_payment")
-  );
+  const [computation, setComputation] = useState<LoanComputation | null>(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [savedList, setSavedList] = useState<SavedScenario[]>(() =>
     loadSavedScenarios()
@@ -151,13 +148,6 @@ export default function App() {
     },
     [amount, rate, term, method, notifyNativeCalculate]
   );
-
-  useEffect(() => {
-    resultRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-    });
-  }, [computation]);
 
   const setMethodAndMaybeRecompute = useCallback(
     (m: RepaymentMethod) => {
@@ -227,10 +217,19 @@ export default function App() {
       {ads.enabled && <AdSenseLoader clientId={ads.client!} />}
 
       <header className="header">
+        <div className="page-badge">대출 비교 계산기</div>
         <h1>💰 대출 계산기</h1>
         <p className="header-tagline">
           원리금균등 · 원금균등 · 만기일시 상환
         </p>
+        <nav className="page-nav" aria-label="계산기 메뉴">
+          <a href="/" className="tab active" aria-current="page">
+            대출 계산기
+          </a>
+          <a href="/compare" className="tab">
+            대출 비교 계산기
+          </a>
+        </nav>
       </header>
 
       <main id="main-content" className="main-content" tabIndex={-1}>
@@ -471,147 +470,7 @@ export default function App() {
           📊 계산하기
         </button>
 
-        <div className="saved-card">
-          <div className="saved-card-title">저장 · 비교</div>
-          <p className="saved-hint">
-            현재 대출 정보를 저장합니다. 저장 된 항목 두 개를 선택하면 대출을
-            비교 하실 수 있습니다.
-          </p>
-          <div className="save-toolbar">
-            <input
-              className="save-name-input"
-              type="text"
-              placeholder="이름 (선택)"
-              value={saveName}
-              onChange={(e) => setSaveName(e.target.value)}
-              maxLength={48}
-              enterKeyHint="done"
-            />
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={handleSaveCurrent}
-            >
-              💾 저장
-            </button>
-          </div>
-
-          {savedList.length > 0 && (
-            <>
-              <p className="compare-hint">
-                비교: 체크박스로 정확히 두 개를 고르세요. (세 번째 선택 시 가장
-                먼저 고른 항목이 해제됩니다.)
-              </p>
-              <div className="saved-list">
-                {savedList.map((s) => (
-                  <div key={s.id} className="saved-row">
-                    <label className="saved-row-compare">
-                      <input
-                        type="checkbox"
-                        checked={compareIds.includes(s.id)}
-                        onChange={() => toggleCompare(s.id)}
-                        aria-label={`${s.name} 비교 선택`}
-                      />
-                    </label>
-                    <div className="saved-row-body">
-                      <div className="saved-row-name">{s.name}</div>
-                      <div className="saved-row-meta">
-                        {methodLabel(s.method)} · {amountLabel(s.amountMan)} ·{" "}
-                        {s.rate.toFixed(1)}% · {termLabel(s.termMonths)}
-                      </div>
-                    </div>
-                    <div className="saved-row-actions">
-                      <button
-                        type="button"
-                        onClick={() => handleLoadSaved(s)}
-                      >
-                        불러오기
-                      </button>
-                      <button
-                        type="button"
-                        className="danger"
-                        onClick={() => handleRemoveSaved(s.id)}
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {compareData && (
-            <div className="compare-section">
-              <div className="compare-title">선택 두 건 비교</div>
-              <div className="compare-table-wrap">
-                <table className="compare-table">
-                  <thead>
-                    <tr>
-                      <th>항목</th>
-                      <th>{compareData.a.name}</th>
-                      <th>{compareData.b.name}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>상환 방식</td>
-                      <td>{methodLabel(compareData.a.method)}</td>
-                      <td>{methodLabel(compareData.b.method)}</td>
-                    </tr>
-                    <tr>
-                      <td>대출 금액</td>
-                      <td>{amountLabel(compareData.a.amountMan)}</td>
-                      <td>{amountLabel(compareData.b.amountMan)}</td>
-                    </tr>
-                    <tr>
-                      <td>연 이자율</td>
-                      <td>{compareData.a.rate.toFixed(1)}%</td>
-                      <td>{compareData.b.rate.toFixed(1)}%</td>
-                    </tr>
-                    <tr>
-                      <td>대출 기간</td>
-                      <td>{termLabel(compareData.a.termMonths)}</td>
-                      <td>{termLabel(compareData.b.termMonths)}</td>
-                    </tr>
-                    <tr>
-                      <td>첫 회 납입</td>
-                      <td>
-                        <span className="compare-cell-sub">
-                          {compareData.ca.monthlyLabel}
-                        </span>
-                        <strong>{fmt(compareData.ca.firstPayment)}</strong> 원
-                      </td>
-                      <td>
-                        <span className="compare-cell-sub">
-                          {compareData.cb.monthlyLabel}
-                        </span>
-                        <strong>{fmt(compareData.cb.firstPayment)}</strong> 원
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>총 이자</td>
-                      <td>{fmt(compareData.ca.totalInterest)} 원</td>
-                      <td>{fmt(compareData.cb.totalInterest)} 원</td>
-                    </tr>
-                    <tr>
-                      <td>총 상환금</td>
-                      <td>{fmt(compareData.ca.totalPayment)} 원</td>
-                      <td>{fmt(compareData.cb.totalPayment)} 원</td>
-                    </tr>
-                    <tr>
-                      <td>이자 부담률</td>
-                      <td>{compareData.ca.interestRatio}%</td>
-                      <td>{compareData.cb.interestRatio}%</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div ref={resultRef} id="result-section">
+        <div id="result-section">
           {c && (
             <>
               <div className="result-card" id="result-card">
@@ -724,6 +583,157 @@ export default function App() {
                 dangerouslySetInnerHTML={{ __html: c.tipHtml }}
               />
 
+              <div className="saved-card">
+                <div className="saved-card-title">저장 · 비교</div>
+                <p className="saved-hint">
+                  현재 대출 정보를 저장합니다. 저장 된 항목 두 개를 선택하면
+                  대출을 비교 하실 수 있습니다.
+                </p>
+                <div className="save-toolbar">
+                  <input
+                    className="save-name-input"
+                    type="text"
+                    placeholder="이름 (선택)"
+                    value={saveName}
+                    onChange={(e) => setSaveName(e.target.value)}
+                    maxLength={48}
+                    enterKeyHint="done"
+                  />
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={handleSaveCurrent}
+                  >
+                    💾 저장
+                  </button>
+                </div>
+
+                {savedList.length > 0 && (
+                  <>
+                    <p className="compare-hint">
+                      비교: 체크박스로 정확히 두 개를 고르세요. (세 번째 선택 시
+                      가장 먼저 고른 항목이 해제됩니다.)
+                    </p>
+                    <div className="saved-list">
+                      {savedList.map((s) => (
+                        <div key={s.id} className="saved-row">
+                          <label className="saved-row-compare">
+                            <input
+                              type="checkbox"
+                              checked={compareIds.includes(s.id)}
+                              onChange={() => toggleCompare(s.id)}
+                              aria-label={`${s.name} 비교 선택`}
+                            />
+                          </label>
+                          <div className="saved-row-body">
+                            <div className="saved-row-name">{s.name}</div>
+                            <div className="saved-row-meta">
+                              {methodLabel(s.method)} · {amountLabel(s.amountMan)} ·{" "}
+                              {s.rate.toFixed(1)}% · {termLabel(s.termMonths)}
+                            </div>
+                          </div>
+                          <div className="saved-row-actions">
+                            <button
+                              type="button"
+                              onClick={() => handleLoadSaved(s)}
+                            >
+                              불러오기
+                            </button>
+                            <button
+                              type="button"
+                              className="danger"
+                              onClick={() => handleRemoveSaved(s.id)}
+                            >
+                              삭제
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {compareData && (
+                  <div className="compare-section">
+                    <div className="compare-title">선택 두 건 비교</div>
+                    <div className="compare-table-wrap">
+                      <table className="compare-table">
+                        <thead>
+                          <tr>
+                            <th>항목</th>
+                            <th>{compareData.a.name}</th>
+                            <th>{compareData.b.name}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>상환 방식</td>
+                            <td>{methodLabel(compareData.a.method)}</td>
+                            <td>{methodLabel(compareData.b.method)}</td>
+                          </tr>
+                          <tr>
+                            <td>대출 금액</td>
+                            <td>{amountLabel(compareData.a.amountMan)}</td>
+                            <td>{amountLabel(compareData.b.amountMan)}</td>
+                          </tr>
+                          <tr>
+                            <td>연 이자율</td>
+                            <td>{compareData.a.rate.toFixed(1)}%</td>
+                            <td>{compareData.b.rate.toFixed(1)}%</td>
+                          </tr>
+                          <tr>
+                            <td>대출 기간</td>
+                            <td>{termLabel(compareData.a.termMonths)}</td>
+                            <td>{termLabel(compareData.b.termMonths)}</td>
+                          </tr>
+                          <tr>
+                            <td>첫 회 납입</td>
+                            <td>
+                              <span className="compare-cell-sub">
+                                {compareData.ca.monthlyLabel}
+                              </span>
+                              <strong>{fmt(compareData.ca.firstPayment)}</strong>{" "}
+                              원
+                            </td>
+                            <td>
+                              <span className="compare-cell-sub">
+                                {compareData.cb.monthlyLabel}
+                              </span>
+                              <strong>{fmt(compareData.cb.firstPayment)}</strong>{" "}
+                              원
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>총 이자</td>
+                            <td>{fmt(compareData.ca.totalInterest)} 원</td>
+                            <td>{fmt(compareData.cb.totalInterest)} 원</td>
+                          </tr>
+                          <tr>
+                            <td>총 상환금</td>
+                            <td>{fmt(compareData.ca.totalPayment)} 원</td>
+                            <td>{fmt(compareData.cb.totalPayment)} 원</td>
+                          </tr>
+                          <tr>
+                            <td>이자 부담률</td>
+                            <td>{compareData.ca.interestRatio}%</td>
+                            <td>{compareData.cb.interestRatio}%</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <a
+                className="loan-check-btn"
+                href="https://loan.pay.naver.com/n/credit"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                🔎 대출확인하기
+              </a>
+
               <button
                 type="button"
                 className="schedule-toggle"
@@ -773,6 +783,12 @@ export default function App() {
             </>
           )}
         </div>
+
+        <nav className="site-legal-links">
+          <a href="/privacy">개인정보처리방침</a>
+          <a href="/terms">이용약관</a>
+          <a href="/contact">문의하기</a>
+        </nav>
       </div>
       </main>
 
