@@ -1,5 +1,11 @@
 import { useEffect } from "react";
-import { Platform, StyleSheet, View, useWindowDimensions } from "react-native";
+import {
+  Linking,
+  Platform,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import mobileAds, {
   BannerAd,
   BannerAdSize,
@@ -25,6 +31,17 @@ function AppContent() {
   const onMessage = (e: WebViewMessageEvent) =>
     onLoanMessage(e.nativeEvent.data);
 
+  const shouldOpenInExternalBrowser = (url: string): boolean =>
+    url.startsWith("https://loan.pay.naver.com/n/credit");
+
+  const onShouldStartLoadWithRequest = (request: { url: string }) => {
+    if (shouldOpenInExternalBrowser(request.url)) {
+      void Linking.openURL(request.url);
+      return false;
+    }
+    return true;
+  };
+
   const webViewCommon = {
     source: { uri: webUrl },
     style: styles.webview,
@@ -35,6 +52,7 @@ function AppContent() {
     setSupportMultipleWindows: false,
     originWhitelist: ["*"],
     onMessage,
+    onShouldStartLoadWithRequest,
   };
 
   useEffect(() => {
