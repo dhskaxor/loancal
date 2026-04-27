@@ -23,7 +23,7 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "usesCleartextTraffic": true,
-      "package": "com.anonymous.loancalmobile"
+      "package": "com.sunwoo.loancal"
     },
     "web": {
       "favicon": "./assets/favicon.png"

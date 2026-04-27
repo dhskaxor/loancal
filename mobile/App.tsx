@@ -53,7 +53,7 @@ function AppContent() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top", "left", "right", "bottom"]}>
+    <SafeAreaView style={styles.safe} edges={["top", "left", "right"]}>
       <StatusBar style="dark" />
       {Platform.OS === "android" ? (
         <WebView {...webViewCommon} mixedContentMode="always" />
@@ -65,7 +65,7 @@ function AppContent() {
           styles.bannerWrap,
           {
             width: windowWidth,
-            paddingBottom: Math.max(insets.bottom, 4),
+            paddingBottom: Math.max(insets.bottom - 2, 0),
           },
         ]}
       >
@@ -101,8 +101,8 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     flexGrow: 0,
     flexShrink: 0,
-    backgroundColor: "#e2e8f0",
-    minHeight: 52,
+    backgroundColor: "#f1f5f9",
+    minHeight: 50,
     justifyContent: "center",
   },
 });
