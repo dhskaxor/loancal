@@ -35,7 +35,8 @@ export function useWebAds(): WebAdsConfig {
     const mode = normalizeAdProvider(import.meta.env.VITE_AD_PROVIDER);
 
     if (mode === "kakao") {
-      return { mode: "kakao", enabled: !isReactNativeWebView() };
+      // 앱 WebView에서도 웹과 동일 DOM 위치(상·중·하)로 애드핏 표시
+      return { mode: "kakao", enabled: true };
     }
 
     const client = normalizePublisherId(
