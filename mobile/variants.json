@@ -1,0 +1,26 @@
+{
+  "loan": {
+    "displayName": "대출 계산기",
+    "slug": "loancal-mobile",
+    "androidPackage": "com.sunwoo.loancal",
+    "iosBundleIdentifier": "com.sunwoo.loancal",
+    "webPath": "",
+    "icon": "./assets/icon.png",
+    "adaptiveIconForeground": "./assets/adaptive-icon.png",
+    "adaptiveIconBackground": "#f3f7ff",
+    "splashImage": "./assets/splash-icon.png",
+    "splashBackgroundColor": "#f3f7ff"
+  },
+  "lotto": {
+    "displayName": "로또",
+    "slug": "loancal-mobile-lotto",
+    "androidPackage": "com.sunwoo.loancal.lotto",
+    "iosBundleIdentifier": "com.sunwoo.loancal.lotto",
+    "webPath": "/lotto",
+    "icon": "./assets/icon.png",
+    "adaptiveIconForeground": "./assets/adaptive-icon.png",
+    "adaptiveIconBackground": "#f3f7ff",
+    "splashImage": "./assets/splash-icon.png",
+    "splashBackgroundColor": "#f3f7ff"
+  }
+}

@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { AdSenseLoader } from "./AdSenseLoader";
 import { AdSenseSlot } from "./AdSenseSlot";
+import { KakaoAdFitSlot } from "./KakaoAdFitSlot";
 import {
   computeLoan,
   type LoanComputation,
@@ -13,50 +14,8 @@ import {
   removeSavedScenario,
   type SavedScenario,
 } from "./savedScenarios";
-import {
-  isLikelyPublisherIdInsteadOfSlot,
-  normalizePublisherId,
-} from "./adsenseEnv";
 import { RangeWithNudges } from "./RangeWithNudges";
-
-function isReactNativeWebView(): boolean {
-  return typeof window !== "undefined" && !!window.ReactNativeWebView;
-}
-
-function useAdsenseConfig() {
-  return useMemo(() => {
-    const client = normalizePublisherId(
-      import.meta.env.VITE_ADSENSE_CLIENT ?? ""
-    );
-    const mid = import.meta.env.VITE_ADSENSE_SLOT_MID?.trim() ?? "";
-    const bottom = import.meta.env.VITE_ADSENSE_SLOT_BOTTOM?.trim() ?? "";
-
-    const slotInvalid =
-      isLikelyPublisherIdInsteadOfSlot(mid) ||
-      isLikelyPublisherIdInsteadOfSlot(bottom);
-
-    if (
-      import.meta.env.DEV &&
-      client &&
-      (mid || bottom) &&
-      slotInvalid
-    ) {
-      console.warn(
-        "[AdSense] VITE_ADSENSE_SLOT_MID / BOTTOM 값이 잘못된 것 같습니다. " +
-          "`ca-pub-...`(발행자 ID)가 아니라, AdSense 콘솔 → 광고 단위에 표시되는 숫자 슬롯 ID를 넣어야 합니다."
-      );
-    }
-
-    const enabled =
-      !isReactNativeWebView() &&
-      !!client &&
-      !!mid &&
-      !!bottom &&
-      !slotInvalid;
-
-    return { enabled, client, mid, bottom };
-  }, []);
-}
+import { KAKAO_ADFIT_UNITS, useWebAds } from "./useWebAds";
 
 function amountLabel(amountMan: number): string {
   if (amountMan >= 10000) {
@@ -116,7 +75,7 @@ function clampTermMonths(v: number): number {
 }
 
 export default function App() {
-  const ads = useAdsenseConfig();
+  const ads = useWebAds();
 
   const [method, setMethod] = useState<RepaymentMethod>("equal_payment");
   const [amount, setAmount] = useState(3000);
@@ -214,7 +173,9 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      {ads.enabled && <AdSenseLoader clientId={ads.client!} />}
+      {ads.mode === "adsense" && ads.enabled && (
+        <AdSenseLoader clientId={ads.client} />
+      )}
 
       <header className="header">
         <div className="page-badge">대출 계산기</div>
@@ -231,6 +192,16 @@ export default function App() {
           </a>
         </nav>
       </header>
+
+      {ads.mode === "kakao" && ads.enabled && (
+        <KakaoAdFitSlot
+          adUnit={KAKAO_ADFIT_UNITS.top.adUnit}
+          width={KAKAO_ADFIT_UNITS.top.width}
+          height={KAKAO_ADFIT_UNITS.top.height}
+          label="top"
+          className="ad-slot--top"
+        />
+      )}
 
       <main id="main-content" className="main-content" tabIndex={-1}>
       <div className="container">
@@ -567,10 +538,19 @@ export default function App() {
                 </div>
               </div>
 
-              {ads.enabled && (
+              {ads.mode === "kakao" && ads.enabled && (
+                <KakaoAdFitSlot
+                  adUnit={KAKAO_ADFIT_UNITS.mid.adUnit}
+                  width={KAKAO_ADFIT_UNITS.mid.width}
+                  height={KAKAO_ADFIT_UNITS.mid.height}
+                  label="mid"
+                  className="ad-slot--mid"
+                />
+              )}
+              {ads.mode === "adsense" && ads.enabled && (
                 <AdSenseSlot
-                  clientId={ads.client!}
-                  slotId={ads.mid!}
+                  clientId={ads.client}
+                  slotId={ads.mid}
                   label="mid"
                   format="horizontal"
                   className="ad-slot--mid"
@@ -787,10 +767,19 @@ export default function App() {
       </div>
       </main>
 
-      {ads.enabled && (
+      {ads.mode === "kakao" && ads.enabled && (
+        <KakaoAdFitSlot
+          adUnit={KAKAO_ADFIT_UNITS.bottom.adUnit}
+          width={KAKAO_ADFIT_UNITS.bottom.width}
+          height={KAKAO_ADFIT_UNITS.bottom.height}
+          label="bottom"
+          className="ad-slot--bottom"
+        />
+      )}
+      {ads.mode === "adsense" && ads.enabled && (
         <AdSenseSlot
-          clientId={ads.client!}
-          slotId={ads.bottom!}
+          clientId={ads.client}
+          slotId={ads.bottom}
           label="bottom"
           className="ad-slot--bottom"
         />

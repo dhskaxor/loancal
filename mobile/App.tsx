@@ -16,20 +16,28 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
+import Constants from "expo-constants";
 import { StatusBar } from "expo-status-bar";
 import type { WebViewMessageEvent } from "react-native-webview";
 import { WebView } from "react-native-webview";
 import { bannerUnitId, getWebUrl } from "./src/adConfig";
 import { useInterstitialOnLoanCalculate } from "./src/useInterstitialOnLoanCalculate";
 
+function isLoanVariant(): boolean {
+  const id = Constants.expoConfig?.extra?.variantId;
+  return id === undefined || id === null || id === "loan";
+}
+
 function AppContent() {
   const webUrl = getWebUrl();
   const onLoanMessage = useInterstitialOnLoanCalculate();
+  const loanVariant = isLoanVariant();
   const { width: windowWidth } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
-  const onMessage = (e: WebViewMessageEvent) =>
-    onLoanMessage(e.nativeEvent.data);
+  const onMessage = loanVariant
+    ? (e: WebViewMessageEvent) => onLoanMessage(e.nativeEvent.data)
+    : undefined;
 
   const shouldOpenInExternalBrowser = (url: string): boolean =>
     url.startsWith("https://loan.pay.naver.com/n/credit");
@@ -51,7 +59,7 @@ function AppContent() {
     mediaPlaybackRequiresUserAction: false,
     setSupportMultipleWindows: false,
     originWhitelist: ["*"],
-    onMessage,
+    ...(onMessage ? { onMessage } : {}),
     onShouldStartLoadWithRequest,
   };
 

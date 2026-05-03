@@ -4,6 +4,7 @@ import App from "./App.tsx";
 import LoanComparePage from "./LoanComparePage.tsx";
 import LegalPage from "./LegalPage.tsx";
 import InfoArticlePage from "./info/InfoArticlePage.tsx";
+import LottoPage from "./lotto/LottoPage.tsx";
 import SiteNavDrawer from "./SiteNavDrawer.tsx";
 import { getDoc } from "./info/docsData.ts";
 import "./index.css";
@@ -22,6 +23,7 @@ const isComparePage = path === "/compare";
 const isPrivacyPage = path === "/privacy";
 const isTermsPage = path === "/terms";
 const isContactPage = path === "/contact";
+const isLottoPage = path === "/lotto";
 const isInfoDoc = Boolean(getDoc(path));
 
 createRoot(document.getElementById("root")!).render(
@@ -35,6 +37,8 @@ createRoot(document.getElementById("root")!).render(
         <LegalPage kind="terms" />
       ) : isContactPage ? (
         <LegalPage kind="contact" />
+      ) : isLottoPage ? (
+        <LottoPage />
       ) : isInfoDoc ? (
         <InfoArticlePage path={path} />
       ) : (

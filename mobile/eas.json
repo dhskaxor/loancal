@@ -12,6 +12,18 @@
     },
     "production": {
       "autoIncrement": true
+    },
+    "production-loan": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_APP_VARIANT": "loan"
+      }
+    },
+    "production-lotto": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_APP_VARIANT": "lotto"
+      }
     }
   },
   "submit": {

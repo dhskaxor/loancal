@@ -43,13 +43,14 @@ npx expo run:android
 
 [`mobile/.env.example`](mobile/.env.example) 참고.
 
-- `EXPO_PUBLIC_WEB_URL`: 배포 웹 URL. 기본 프로덕션 값은 `https://loancal-sigma.vercel.app` ([`mobile/.env.production`](mobile/.env.production), [`mobile/src/adConfig.ts`](mobile/src/adConfig.ts)).
+- `EXPO_PUBLIC_WEB_URL`: 배포 웹 URL. 미설정 시 변형별 기본 URL은 [`mobile/src/variantManifest.ts`](mobile/src/variantManifest.ts) 및 [`mobile/variants.json`](mobile/variants.json)을 따릅니다 ([`mobile/.env.production`](mobile/.env.production), [`mobile/src/adConfig.ts`](mobile/src/adConfig.ts)).
+- `EXPO_PUBLIC_APP_VARIANT`: `loan`(기본) 또는 `lotto` 등 — [`mobile/docs/variants.md`](mobile/docs/variants.md) 참고.
 - `EXPO_PUBLIC_ADMOB_USE_TEST_IDS=false`로 두면 아래 배너·전면 단위 ID가 사용됩니다(비어 있으면 여전히 Google 테스트 ID).
-- 상용 빌드 전 [`mobile/app.json`](mobile/app.json)의 `react-native-google-mobile-ads` 플러그인에 있는 **앱 ID**(`androidAppId`, `iosAppId`)를 AdMob 콘솔의 본인 앱 ID로 바꾸세요. 현재는 Google 샘플 앱 ID입니다.
+- 상용 빌드 전 `EXPO_PUBLIC_ADMOB_ANDROID_APP_ID` / `EXPO_PUBLIC_ADMOB_IOS_APP_ID`(또는 [`mobile/app.config.js`](mobile/app.config.js) 기본값)를 AdMob 콘솔의 본인 **앱** ID로 바꾸세요. 미설정 시 Google 샘플 앱 ID입니다.
 
 ### Android HTTP(로컬 Vite)
 
-로컬 `http://` 웹을 띄우기 위해 `app.json`에 `usesCleartextTraffic: true`가 들어 있습니다. 스토어 배포 시에는 HTTPS `EXPO_PUBLIC_WEB_URL`만 쓰고, 필요하면 cleartext를 끄는 편이 좋습니다.
+로컬 `http://` 웹을 띄우기 위해 [`mobile/app.config.js`](mobile/app.config.js)의 Android 설정에 `usesCleartextTraffic: true`가 들어 있습니다. 스토어 배포 시에는 HTTPS `EXPO_PUBLIC_WEB_URL`만 쓰고, 필요하면 cleartext를 끄는 편이 좋습니다.
 
 ## 전면 광고 동작
 

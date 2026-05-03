@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdSenseLoader } from "./AdSenseLoader";
 import { AdSenseSlot } from "./AdSenseSlot";
-import {
-  isLikelyPublisherIdInsteadOfSlot,
-  normalizePublisherId,
-} from "./adsenseEnv";
+import { KakaoAdFitSlot } from "./KakaoAdFitSlot";
+import { KAKAO_ADFIT_UNITS, useWebAds } from "./useWebAds";
 
 type Cell = {
   monthly: number;
@@ -22,26 +20,6 @@ type CompareResult = {
 
 function isReactNativeWebView(): boolean {
   return typeof window !== "undefined" && !!window.ReactNativeWebView;
-}
-
-function useAdsenseConfig() {
-  return useMemo(() => {
-    const client = normalizePublisherId(
-      import.meta.env.VITE_ADSENSE_CLIENT ?? ""
-    );
-    const mid = import.meta.env.VITE_ADSENSE_SLOT_MID?.trim() ?? "";
-    const bottom = import.meta.env.VITE_ADSENSE_SLOT_BOTTOM?.trim() ?? "";
-    const slotInvalid =
-      isLikelyPublisherIdInsteadOfSlot(mid) ||
-      isLikelyPublisherIdInsteadOfSlot(bottom);
-    const enabled =
-      !isReactNativeWebView() &&
-      !!client &&
-      !!mid &&
-      !!bottom &&
-      !slotInvalid;
-    return { enabled, client, mid, bottom };
-  }, []);
 }
 
 function calcMonthly(principalWon: number, annualRate: number, months: number) {
@@ -89,7 +67,7 @@ function setCanonical(url: string) {
 }
 
 export default function LoanComparePage() {
-  const ads = useAdsenseConfig();
+  const ads = useWebAds();
   const RATE_STEP_FIXED = 1;
   const TERM_STEP_FIXED = 12;
 
@@ -202,7 +180,9 @@ export default function LoanComparePage() {
 
   return (
     <div className="app-shell compare-shell">
-      {ads.enabled && <AdSenseLoader clientId={ads.client!} />}
+      {ads.mode === "adsense" && ads.enabled && (
+        <AdSenseLoader clientId={ads.client} />
+      )}
 
       <header className="header compare-header">
         <div className="compare-badge">대출 비교 계산기</div>
@@ -221,6 +201,16 @@ export default function LoanComparePage() {
           </a>
         </nav>
       </header>
+
+      {ads.mode === "kakao" && ads.enabled && (
+        <KakaoAdFitSlot
+          adUnit={KAKAO_ADFIT_UNITS.top.adUnit}
+          width={KAKAO_ADFIT_UNITS.top.width}
+          height={KAKAO_ADFIT_UNITS.top.height}
+          label="compare-top"
+          className="ad-slot--top"
+        />
+      )}
 
       <main id="main-content" className="main-content" tabIndex={-1}>
         <div className="container compare-container">
@@ -384,10 +374,19 @@ export default function LoanComparePage() {
                 🔎 대출확인하기
               </a>
 
-              {ads.enabled && (
+              {ads.mode === "kakao" && ads.enabled && (
+                <KakaoAdFitSlot
+                  adUnit={KAKAO_ADFIT_UNITS.mid.adUnit}
+                  width={KAKAO_ADFIT_UNITS.mid.width}
+                  height={KAKAO_ADFIT_UNITS.mid.height}
+                  label="compare-mid"
+                  className="ad-slot--mid"
+                />
+              )}
+              {ads.mode === "adsense" && ads.enabled && (
                 <AdSenseSlot
-                  clientId={ads.client!}
-                  slotId={ads.mid!}
+                  clientId={ads.client}
+                  slotId={ads.mid}
                   label="compare-mid"
                   format="horizontal"
                   className="ad-slot--mid"
@@ -475,10 +474,19 @@ export default function LoanComparePage() {
         </div>
       </main>
 
-      {ads.enabled && (
+      {ads.mode === "kakao" && ads.enabled && (
+        <KakaoAdFitSlot
+          adUnit={KAKAO_ADFIT_UNITS.bottom.adUnit}
+          width={KAKAO_ADFIT_UNITS.bottom.width}
+          height={KAKAO_ADFIT_UNITS.bottom.height}
+          label="compare-bottom"
+          className="ad-slot--bottom"
+        />
+      )}
+      {ads.mode === "adsense" && ads.enabled && (
         <AdSenseSlot
-          clientId={ads.client!}
-          slotId={ads.bottom!}
+          clientId={ads.client}
+          slotId={ads.bottom}
           label="compare-bottom"
           className="ad-slot--bottom"
         />

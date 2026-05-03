@@ -1,5 +1,6 @@
 import { Platform } from "react-native";
 import { TestIds } from "react-native-google-mobile-ads";
+import { defaultProductionWebUrl } from "./variantManifest";
 
 function useTestAdUnits(): boolean {
   const flag = process.env.EXPO_PUBLIC_ADMOB_USE_TEST_IDS;
@@ -40,5 +41,5 @@ export function getWebUrl(): string {
       ? "http://10.0.2.2:5173"
       : "http://localhost:5173";
   }
-  return "https://loancal-sigma.vercel.app";
+  return defaultProductionWebUrl();
 }

@@ -21,6 +21,7 @@
 
 html {
   overflow-x: hidden;
+  touch-action: manipulation;
 }
 
 body {
@@ -31,6 +32,7 @@ body {
   min-height: 100dvh;
   padding: 0;
   overflow-x: hidden;
+  touch-action: manipulation;
 }
 
 #root {
@@ -119,14 +121,21 @@ body {
   text-align: center;
 }
 
+.ad-slot--top {
+  flex-shrink: 0;
+  max-width: 320px;
+  margin: 0 auto;
+  padding: 6px 0 2px;
+}
+
 .ad-slot--mid {
-  max-width: 100%;
-  margin: 10px 0 12px;
+  max-width: 300px;
+  margin: 10px auto 12px;
 }
 
 .ad-slot--bottom {
   flex-shrink: 0;
-  max-width: 320px;
+  max-width: 250px;
   padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
 }
 
