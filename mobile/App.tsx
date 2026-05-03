@@ -1,12 +1,26 @@
 import { useEffect } from "react";
-import { Linking, Platform, StyleSheet } from "react-native";
-import mobileAds, { MaxAdContentRating } from "react-native-google-mobile-ads";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import {
+  Linking,
+  Platform,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from "react-native";
+import mobileAds, {
+  BannerAd,
+  BannerAdSize,
+  MaxAdContentRating,
+} from "react-native-google-mobile-ads";
+import {
+  SafeAreaProvider,
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import Constants from "expo-constants";
 import { StatusBar } from "expo-status-bar";
 import type { WebViewMessageEvent } from "react-native-webview";
 import { WebView } from "react-native-webview";
-import { getWebUrl } from "./src/adConfig";
+import { bannerUnitId, getWebUrl } from "./src/adConfig";
 import { useInterstitialOnLoanCalculate } from "./src/useInterstitialOnLoanCalculate";
 
 function isLoanVariant(): boolean {
@@ -18,6 +32,8 @@ function AppContent() {
   const webUrl = getWebUrl();
   const onLoanMessage = useInterstitialOnLoanCalculate();
   const loanVariant = isLoanVariant();
+  const { width: windowWidth } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
 
   const onMessage = loanVariant
     ? (e: WebViewMessageEvent) => onLoanMessage(e.nativeEvent.data)
@@ -70,6 +86,21 @@ function AppContent() {
       ) : (
         <WebView {...webViewCommon} />
       )}
+      <View
+        style={[
+          styles.bannerWrap,
+          {
+            width: windowWidth,
+            paddingBottom: Math.max(insets.bottom - 2, 0),
+          },
+        ]}
+      >
+        <BannerAd
+          unitId={bannerUnitId("bottom")}
+          size={BannerAdSize.BANNER}
+          requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+        />
+      </View>
     </SafeAreaView>
   );
 }
@@ -90,5 +121,14 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  bannerWrap: {
+    alignItems: "center",
+    alignSelf: "stretch",
+    flexGrow: 0,
+    flexShrink: 0,
+    backgroundColor: "#f1f5f9",
+    minHeight: 50,
+    justifyContent: "center",
   },
 });
