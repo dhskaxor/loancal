@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { AdSenseLoader } from "./AdSenseLoader";
 import { AdSenseSlot } from "./AdSenseSlot";
 import { KakaoAdFitSlot } from "./KakaoAdFitSlot";
+import { DualRangeSlider } from "./DualRangeSlider";
+import { RangeWithNudges } from "./RangeWithNudges";
 import { KAKAO_ADFIT_UNITS, useWebAds } from "./useWebAds";
 
 type Cell = {
@@ -68,7 +70,17 @@ function setCanonical(url: string) {
 
 export default function LoanComparePage() {
   const ads = useWebAds();
+  const AMOUNT_MIN = 100;
+  const AMOUNT_MAX = 50000;
+  const AMOUNT_STEP = 100;
+  const BUDGET_MIN = 10;
+  const BUDGET_MAX = 2000;
+  const BUDGET_STEP = 10;
+  const RATE_MIN_BOUND = 1;
+  const RATE_MAX_BOUND = 20;
   const RATE_STEP_FIXED = 1;
+  const TERM_MIN_BOUND = 12;
+  const TERM_MAX_BOUND = 360;
   const TERM_STEP_FIXED = 12;
 
   const [loanAmountMan, setLoanAmountMan] = useState(3000);
@@ -78,6 +90,30 @@ export default function LoanComparePage() {
   const [termMin, setTermMin] = useState(12);
   const [termMax, setTermMax] = useState(60);
   const [result, setResult] = useState<CompareResult | null>(null);
+
+  const clampAmount = useCallback((v: number) => {
+    const rounded = Math.round(v / AMOUNT_STEP) * AMOUNT_STEP;
+    return Math.min(AMOUNT_MAX, Math.max(AMOUNT_MIN, rounded));
+  }, [AMOUNT_MAX, AMOUNT_MIN, AMOUNT_STEP]);
+
+  const clampBudget = useCallback((v: number) => {
+    const rounded = Math.round(v / BUDGET_STEP) * BUDGET_STEP;
+    return Math.min(BUDGET_MAX, Math.max(BUDGET_MIN, rounded));
+  }, [BUDGET_MAX, BUDGET_MIN, BUDGET_STEP]);
+
+  const clampRateBound = useCallback((v: number) => {
+    const rounded = Math.round(v * 10) / 10;
+    return Math.min(RATE_MAX_BOUND, Math.max(RATE_MIN_BOUND, rounded));
+  }, [RATE_MAX_BOUND, RATE_MIN_BOUND]);
+
+  const clampTermBound = useCallback((v: number) => {
+    const c = Math.max(TERM_MIN_BOUND, Math.min(TERM_MAX_BOUND, v));
+    const steps = Math.round((c - TERM_MIN_BOUND) / TERM_STEP_FIXED);
+    return Math.min(
+      TERM_MAX_BOUND,
+      Math.max(TERM_MIN_BOUND, steps * TERM_STEP_FIXED + TERM_MIN_BOUND)
+    );
+  }, [TERM_MAX_BOUND, TERM_MIN_BOUND, TERM_STEP_FIXED]);
 
   useEffect(() => {
     const title = "대출 비교 계산기 - 이자율·기간별 한눈에 비교";
@@ -216,30 +252,107 @@ export default function LoanComparePage() {
         <div className="container compare-container">
           <section className="card">
             <div className="card-title">기본 조건</div>
-            <div className="compare-input-row">
-              <div className="compare-input-group">
-                <label>대출 금액</label>
-                <div className="compare-input-wrap">
-                  <input
-                    type="number"
-                    value={loanAmountMan}
-                    onChange={(e) => setLoanAmountMan(Number(e.target.value))}
-                  />
-                  <span>만원</span>
-                </div>
+            <div className="input-group">
+              <div className="input-label">
+                <span>대출 금액</span>
+                <span className="input-value">{loanAmountMan.toLocaleString("ko-KR")}만원</span>
               </div>
-              <div className="compare-input-group">
-                <label>월 상환 가능액</label>
-                <div className="compare-input-wrap">
-                  <input
-                    type="number"
-                    value={monthlyBudgetMan}
-                    onChange={(e) =>
-                      setMonthlyBudgetMan(Number(e.target.value))
-                    }
-                  />
-                  <span>만원</span>
-                </div>
+              <RangeWithNudges
+                groupLabel="비교 계산 대출 금액 조절"
+                left={[
+                  {
+                    label: "−500",
+                    ariaLabel: "대출 금액 500만원 감소",
+                    disabled: loanAmountMan <= AMOUNT_MIN,
+                    onClick: () => setLoanAmountMan((v) => clampAmount(v - 500)),
+                  },
+                  {
+                    label: "−100",
+                    ariaLabel: "대출 금액 100만원 감소",
+                    disabled: loanAmountMan <= AMOUNT_MIN,
+                    onClick: () => setLoanAmountMan((v) => clampAmount(v - 100)),
+                  },
+                ]}
+                right={[
+                  {
+                    label: "+100",
+                    ariaLabel: "대출 금액 100만원 증가",
+                    disabled: loanAmountMan >= AMOUNT_MAX,
+                    onClick: () => setLoanAmountMan((v) => clampAmount(v + 100)),
+                  },
+                  {
+                    label: "+500",
+                    ariaLabel: "대출 금액 500만원 증가",
+                    disabled: loanAmountMan >= AMOUNT_MAX,
+                    onClick: () => setLoanAmountMan((v) => clampAmount(v + 500)),
+                  },
+                ]}
+              >
+                <input
+                  type="range"
+                  min={AMOUNT_MIN}
+                  max={AMOUNT_MAX}
+                  step={AMOUNT_STEP}
+                  value={loanAmountMan}
+                  onChange={(e) => setLoanAmountMan(Number(e.target.value))}
+                  aria-label="비교 계산 대출 금액 슬라이더"
+                />
+              </RangeWithNudges>
+              <div className="range-labels range-labels--below">
+                <span>100만원</span>
+                <span>5억원</span>
+              </div>
+            </div>
+
+            <div className="input-group">
+              <div className="input-label">
+                <span>월 상환 가능액</span>
+                <span className="input-value">{monthlyBudgetMan.toLocaleString("ko-KR")}만원</span>
+              </div>
+              <RangeWithNudges
+                groupLabel="월 상환 가능액 조절"
+                left={[
+                  {
+                    label: "−50",
+                    ariaLabel: "월 상환 가능액 50만원 감소",
+                    disabled: monthlyBudgetMan <= BUDGET_MIN,
+                    onClick: () => setMonthlyBudgetMan((v) => clampBudget(v - 50)),
+                  },
+                  {
+                    label: "−10",
+                    ariaLabel: "월 상환 가능액 10만원 감소",
+                    disabled: monthlyBudgetMan <= BUDGET_MIN,
+                    onClick: () => setMonthlyBudgetMan((v) => clampBudget(v - 10)),
+                  },
+                ]}
+                right={[
+                  {
+                    label: "+10",
+                    ariaLabel: "월 상환 가능액 10만원 증가",
+                    disabled: monthlyBudgetMan >= BUDGET_MAX,
+                    onClick: () => setMonthlyBudgetMan((v) => clampBudget(v + 10)),
+                  },
+                  {
+                    label: "+50",
+                    ariaLabel: "월 상환 가능액 50만원 증가",
+                    disabled: monthlyBudgetMan >= BUDGET_MAX,
+                    onClick: () => setMonthlyBudgetMan((v) => clampBudget(v + 50)),
+                  },
+                ]}
+              >
+                <input
+                  type="range"
+                  min={BUDGET_MIN}
+                  max={BUDGET_MAX}
+                  step={BUDGET_STEP}
+                  value={monthlyBudgetMan}
+                  onChange={(e) => setMonthlyBudgetMan(Number(e.target.value))}
+                  aria-label="비교 계산 월 상환 가능액 슬라이더"
+                />
+              </RangeWithNudges>
+              <div className="range-labels range-labels--below">
+                <span>10만원</span>
+                <span>2,000만원</span>
               </div>
             </div>
           </section>
@@ -248,52 +361,72 @@ export default function LoanComparePage() {
             <div className="card-title">비교 범위 설정</div>
             <div className="compare-range-block">
               <p className="compare-range-title">이자율 범위 (%)</p>
-              <div className="compare-range-grid compare-range-grid--two">
-                <div className="compare-range-item">
-                  <label>최저</label>
-                  <input
-                    type="number"
-                    step={0.5}
-                    value={rateMin}
-                    onChange={(e) => setRateMin(Number(e.target.value))}
-                  />
+              <div className="input-group">
+                <div className="input-label">
+                  <span>이자율 구간</span>
+                  <span className="input-value">
+                    {rateMin.toFixed(1)}% ~ {rateMax.toFixed(1)}%
+                  </span>
                 </div>
-                <div className="compare-range-item">
-                  <label>최고</label>
-                  <input
-                    type="number"
-                    step={0.5}
-                    value={rateMax}
-                    onChange={(e) => setRateMax(Number(e.target.value))}
-                  />
+                <div className="range-row">
+                  <div className="range-core">
+                    <DualRangeSlider
+                      minBound={RATE_MIN_BOUND}
+                      maxBound={RATE_MAX_BOUND}
+                      step={0.1}
+                      low={rateMin}
+                      high={rateMax}
+                      minGap={RATE_STEP_FIXED}
+                      snap={clampRateBound}
+                      onChange={(l, h) => {
+                        setRateMin(l);
+                        setRateMax(h);
+                      }}
+                      lowAriaLabel="비교 최저 이자율"
+                      highAriaLabel="비교 최고 이자율"
+                    />
+                  </div>
+                </div>
+                <div className="range-labels range-labels--below">
+                  <span>1%</span>
+                  <span>20%</span>
                 </div>
               </div>
-              <input type="hidden" value={RATE_STEP_FIXED} />
             </div>
 
             <div className="compare-range-block">
               <p className="compare-range-title">대출 기간 (개월)</p>
-              <div className="compare-range-grid compare-range-grid--two">
-                <div className="compare-range-item">
-                  <label>최단</label>
-                  <input
-                    type="number"
-                    step={12}
-                    value={termMin}
-                    onChange={(e) => setTermMin(Number(e.target.value))}
-                  />
+              <div className="input-group">
+                <div className="input-label">
+                  <span>기간 구간</span>
+                  <span className="input-value">
+                    {termLabel(termMin)} ~ {termLabel(termMax)}
+                  </span>
                 </div>
-                <div className="compare-range-item">
-                  <label>최장</label>
-                  <input
-                    type="number"
-                    step={12}
-                    value={termMax}
-                    onChange={(e) => setTermMax(Number(e.target.value))}
-                  />
+                <div className="range-row">
+                  <div className="range-core">
+                    <DualRangeSlider
+                      minBound={TERM_MIN_BOUND}
+                      maxBound={TERM_MAX_BOUND}
+                      step={TERM_STEP_FIXED}
+                      low={termMin}
+                      high={termMax}
+                      minGap={TERM_STEP_FIXED}
+                      snap={clampTermBound}
+                      onChange={(l, h) => {
+                        setTermMin(l);
+                        setTermMax(h);
+                      }}
+                      lowAriaLabel="비교 최단 대출 기간"
+                      highAriaLabel="비교 최장 대출 기간"
+                    />
+                  </div>
+                </div>
+                <div className="range-labels range-labels--below">
+                  <span>1년</span>
+                  <span>30년</span>
                 </div>
               </div>
-              <input type="hidden" value={TERM_STEP_FIXED} />
             </div>
           </section>
 

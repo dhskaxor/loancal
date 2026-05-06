@@ -731,34 +731,36 @@ export default function App() {
                 className={`schedule-table-wrap${scheduleOpen ? " open" : ""}`}
                 id="schedule-table-wrap"
               >
-                <table>
-                  <thead>
-                    <tr>
-                      <th>회차</th>
-                      <th>월상환금</th>
-                      <th>원금</th>
-                      <th>이자</th>
-                      <th>잔금</th>
-                    </tr>
-                  </thead>
-                  <tbody id="schedule-tbody">
-                    {c.schedule.map((row) => (
-                      <tr key={row.month}>
-                        <td>{row.month}회</td>
-                        <td>{fmt(row.payment)}</td>
-                        <td style={{ color: "var(--accent)" }}>
-                          {fmt(row.principal)}
-                        </td>
-                        <td style={{ color: "var(--orange)" }}>
-                          {fmt(row.interest)}
-                        </td>
-                        <td style={{ color: "var(--muted2)" }}>
-                          {fmt(row.balance)}
-                        </td>
+                <div className="schedule-table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>회차</th>
+                        <th>월상환금</th>
+                        <th>원금</th>
+                        <th>이자</th>
+                        <th>잔금</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody id="schedule-tbody">
+                      {c.schedule.map((row) => (
+                        <tr key={row.month}>
+                          <td>{row.month}회</td>
+                          <td>{fmt(row.payment)}</td>
+                          <td style={{ color: "var(--accent)" }}>
+                            {fmt(row.principal)}
+                          </td>
+                          <td style={{ color: "var(--orange)" }}>
+                            {fmt(row.interest)}
+                          </td>
+                          <td style={{ color: "var(--muted2)" }}>
+                            {fmt(row.balance)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </>
           )}

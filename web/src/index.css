@@ -418,6 +418,87 @@ input[type="range"] {
   margin-bottom: 0;
 }
 
+/* 이중 범위 슬라이더 (최소·최대 한 트랙) */
+.dual-range {
+  position: relative;
+  width: 100%;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  --dual-p1: 0%;
+  --dual-p2: 100%;
+}
+
+.dual-range__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  border-radius: 3px;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    var(--border) 0%,
+    var(--border) var(--dual-p1),
+    var(--accent) var(--dual-p1),
+    var(--accent) var(--dual-p2),
+    var(--border) var(--dual-p2),
+    var(--border) 100%
+  );
+}
+
+.dual-range input[type="range"] {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 36px;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.dual-range input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: transparent;
+  border: none;
+}
+
+.dual-range input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: transparent;
+  border: none;
+}
+
+.dual-range input[type="range"]::-webkit-slider-thumb {
+  pointer-events: auto;
+}
+
+.dual-range input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+}
+
+.dual-range__low {
+  z-index: 2;
+}
+
+.dual-range__high {
+  z-index: 3;
+}
+
+.dual-range--drag-low .dual-range__low {
+  z-index: 5;
+}
+
+.dual-range--drag-high .dual-range__high {
+  z-index: 5;
+}
+
 .range-nudge {
   display: flex;
   flex-direction: row;
@@ -646,13 +727,66 @@ input[type="range"]::-moz-range-thumb {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
-  overflow: hidden;
   margin-bottom: 14px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .schedule-table-wrap.open {
   display: block;
+  overflow: hidden;
 }
+
+/* 모바일·WebView: 바깥은 둥글게 자르고, 안쪽에서만 가로 스크롤 */
+.schedule-table-wrap .schedule-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+}
+
+/* 좁은 화면(WebView·모바일): 5열 숫자가 잘리지 않도록 가로 스크롤 */
+.schedule-table-wrap table {
+  width: max-content;
+  min-width: 100%;
+  table-layout: auto;
+  border-collapse: collapse;
+}
+
+.schedule-table-wrap th,
+.schedule-table-wrap td {
+  white-space: nowrap;
+  padding: 8px 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-table-wrap th {
+  font-size: 10px;
+}
+
+.schedule-table-wrap td {
+  font-size: 11px;
+}
+
+@media (max-width: 420px) {
+  .schedule-table-wrap th,
+  .schedule-table-wrap td {
+    padding: 6px 6px;
+  }
+
+  .schedule-table-wrap th {
+    font-size: 9px;
+  }
+
+  .schedule-table-wrap td {
+    font-size: 10px;
+  }
+}
+
 
 table {
   width: 100%;

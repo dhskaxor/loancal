@@ -16,7 +16,7 @@ module.exports = ({ config }) => {
     ...config,
     name: v.displayName,
     slug: v.slug,
-    version: "1.0.1",
+    version: "1.0.3",
     orientation: "portrait",
     icon: v.icon,
     userInterfaceStyle: "light",
